@@ -4,6 +4,7 @@ import useLazyQuery from "./hooks/useLazyQuery";
 import LATEST_BLOCK_GRAPHQL from "./queries/latestBlock";
 import IS_PHISHER_GRAPHQL from "./queries/isPhisher";
 import TextInput from "./TextInput";
+import { address } from "./config.json";
 
 export default function PhisherCheck(props) {
   const [output, setOutput] = useState("");
@@ -39,7 +40,7 @@ export function PhisherCheckButton() {
   const isPhisher = useLazyQuery(IS_PHISHER_GQL, {
     context: { clientName: "watcher" },
     variables: {
-      contractAddress: process?.env?.REACT_APP_CONTRACT_ADDRESS,
+      contractAddress: address,
     },
   });
 

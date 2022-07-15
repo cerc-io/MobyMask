@@ -4,6 +4,7 @@ import useLazyQuery from "./hooks/useLazyQuery";
 import LATEST_BLOCK_GRAPHQL from "./queries/latestBlock";
 import IS_MEMBER_GRAPHQL from "./queries/isMember";
 import TextInput from "./TextInput";
+import { address } from "./config.json";
 
 export default function MemberCheck(props) {
   const [output, setOutput] = useState("");
@@ -39,7 +40,7 @@ export function MemberCheckButton() {
   const isMember = useLazyQuery(IS_MEMBER_GQL, {
     context: { clientName: "watcher" },
     variables: {
-      contractAddress: process?.env?.REACT_APP_CONTRACT_ADDRESS,
+      contractAddress: address,
     },
   });
 
