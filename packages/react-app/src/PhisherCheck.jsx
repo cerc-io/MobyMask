@@ -33,6 +33,7 @@ export function PhisherCheckButton() {
   const LATEST_BLOCK_GQL = gql(LATEST_BLOCK_GRAPHQL);
   const latestBlock = useLazyQuery(LATEST_BLOCK_GQL, {
     context: { clientName: "watcher" },
+    fetchPolicy: "no-cache",
   });
 
   // Check if isPhisher
