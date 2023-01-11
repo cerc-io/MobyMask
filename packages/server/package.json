@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node index.ts",
     "rootGen": "npx ts-node rootInviteGen.ts",
+    "inviteGen": "npx ts-node randomInviteGen.ts",
     "generateClient": "open-rpc-generator generate -c open-rpc-generator-config.json"
   },
   "author": "",
