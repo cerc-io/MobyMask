@@ -1,11 +1,12 @@
 import { ethers } from "ethers";
-const sigUtil = require('eth-sig-util');
 
 const DEFAULT_BASE_URI = 'http://localhost:3000';
 
 signDelegation();
 
 function signDelegation () {
+  // Using random signer to generate fake root invite. Generally contract owner account is used for creating root invite.
+  // This fake invite won't work if trying to submit reports on blockchain and is used for demo purposes.
   const signer = ethers.Wallet.createRandom();
 
   const invitation = {
