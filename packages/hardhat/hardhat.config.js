@@ -672,14 +672,13 @@ task("claimPhisher", "Claim if name is phisher")
 
     const Contract = await hre.ethers.getContractFactory("PhisherRegistry");
     let contract = Contract.attach(contractAddress);
-    
+
     if (key) {
       const wallet = new hre.ethers.Wallet(key, hre.ethers.provider);
       contract = contract.connect(wallet);
     }
 
-    const codedName = `TWT:${name.toLowerCase()}`;
-    const transaction = await contract.claimIfPhisher(codedName, !remove);
+    const transaction = await contract.claimIfPhisher(name, !remove);
     const receipt = await transaction.wait();
 
     if (receipt.events) {
@@ -704,9 +703,8 @@ task("checkIfPhisher", "Check if name is phisher")
     await hre.run("compile");
     const Contract = await hre.ethers.getContractFactory("PhisherRegistry");
     const contract = Contract.attach(contractAddress);
-    const codedName = `TWT:${name.toLowerCase()}`;
 
-    const isNamePhisher = await contract.isPhisher(codedName);
+    const isNamePhisher = await contract.isPhisher(name);
     console.log("isNamePhisher : ", isNamePhisher);
   });
 
@@ -727,8 +725,7 @@ task("claimMember", "Claim if name is member")
       contract = contract.connect(wallet);
     }
 
-    const codedName = `TWT:${name.toLowerCase()}`;
-    const transaction = await contract.claimIfMember(codedName, !remove);
+    const transaction = await contract.claimIfMember(name, !remove);
     const receipt = await transaction.wait();
 
     if (receipt.events) {
@@ -753,31 +750,31 @@ task("checkIfMember", "Check if name is member")
     await hre.run("compile");
     const Contract = await hre.ethers.getContractFactory("PhisherRegistry");
     const contract = Contract.attach(contractAddress);
-    const codedName = `TWT:${name.toLowerCase()}`;
 
-    const isNameMember = await contract.isMember(codedName);
+    const isNameMember = await contract.isMember(name);
     console.log("isNameMember : ", isNameMember);
   });
 
-task("testInvoke", "Invokes a transaction for the delegate on behalf of the authorizer")
+  task("testInvoke", "Test to invoke a transaction on behalf of the contract owner")
   .addParam("contract", "Contract address")
-  .addParam("delegate", "Private key of delegate account")  
-  .addParam("delegator", "Private key of delegator account (contract owner)")
+  .addParam("owner", "Private key of contract owner")
+  .addParam("invoker", "Private key of account calling invoke method")
   .setAction(async (args, hre) => {
-    const { contract: contractAddress, delegate: delegateKey, delegator: delegatorKey} = args;
+    const { contract: contractAddress, owner: ownerKey, invoker: invokerKey } = args;
+    const phisherString = 'testPhisher';
 
-    const delegate = new ethers.Wallet(delegateKey, hre.ethers.provider);
     const yourContract = await hre.ethers.getContractAt("PhisherRegistry", contractAddress);
-    const phisherString = 'testPhisher'
     const { chainId } = await yourContract.provider.getNetwork();
 
     const utilOpts = {
       chainId,
       verifyingContract: yourContract.address,
-      name: CONTRACT_NAME,      
+      name: CONTRACT_NAME,
     };
-
     const util = generateUtil(utilOpts);
+
+    // Create a new Wallet with a random private key
+    const delegate = new ethers.Wallet.createRandom();
 
     // Prepare the delegation message:
     // This message has no caveats, and authority 0,
@@ -789,7 +786,7 @@ task("testInvoke", "Invokes a transaction for the delegate on behalf of the auth
       caveats: [],
     };
 
-    const signedDelegation = util.signDelegation(delegation, delegatorKey);
+    const signedDelegation = util.signDelegation(delegation, ownerKey);
     const desiredTx = await yourContract.populateTransaction.claimIfPhisher(phisherString, true);
     const queue = Math.floor(Math.random() * 100000000);
 
@@ -809,9 +806,11 @@ task("testInvoke", "Invokes a transaction for the delegate on behalf of the auth
     };
 
     // Delegate signs the invocation message:
-    const signedInvocation= util.signInvocation(invocationMessage, delegateKey);
+    const signedInvocation = util.signInvocation(invocationMessage, delegate.privateKey);
+
     // A third party can submit the invocation method to the chain:
-    const transaction = await yourContract.connect(delegate).invoke([signedInvocation]);
+    const invoker = new ethers.Wallet(invokerKey, hre.ethers.provider);
+    const transaction = await yourContract.connect(invoker).invoke([signedInvocation]);
     const receipt = await transaction.wait();
 
     if (receipt.events) {
