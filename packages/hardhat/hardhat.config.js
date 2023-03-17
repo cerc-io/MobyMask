@@ -755,7 +755,7 @@ task("checkIfMember", "Check if name is member")
     console.log("isNameMember : ", isNameMember);
   });
 
-  task("testInvoke", "Test to invoke a transaction on behalf of the contract owner")
+  task("testInvoke", "Test to send signed invocation to the chain")
   .addParam("contract", "Contract address")
   .addParam("owner", "Private key of contract owner")
   .addParam("invoker", "Private key of account calling invoke method")
@@ -808,7 +808,7 @@ task("checkIfMember", "Check if name is member")
     // Delegate signs the invocation message:
     const signedInvocation = util.signInvocation(invocationMessage, delegate.privateKey);
 
-    // A third party can submit the invocation method to the chain:
+    // A third party can submit the signed invocation method to the chain:
     const invoker = new ethers.Wallet(invokerKey, hre.ethers.provider);
     const transaction = await yourContract.connect(invoker).invoke([signedInvocation]);
     const receipt = await transaction.wait();
