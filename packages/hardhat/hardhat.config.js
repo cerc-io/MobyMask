@@ -97,7 +97,9 @@ module.exports = {
     laconic: {
       url: "http://localhost:8545"
     },
-
+    deployment: {
+      url: process.env.RPC_URL || "http://localhost:8545",
+    },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.RINKEBY_INFURA_KEY}`,
       mnemonic: mnemonic(),
@@ -825,4 +827,18 @@ task("checkIfMember", "Check if name is member")
         );
       }
     }
+  });
+
+task("verify-deployment", "Verifies the given contract deployment")
+  .addParam("contract", "Address of the contract deployed")
+  .setAction(async ({ contract }, { ethers }) => {
+    // Get the deployment contract's code
+    const code = await ethers.provider.getCode(contract);
+
+    if (code === "0x") {
+      console.log(`Contract ${contract} deployment verification failed`);
+      process.exit(1);
+    }
+
+    console.log(`Deployment for contract ${contract} verified`);
   });
