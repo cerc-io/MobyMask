@@ -97,7 +97,7 @@ module.exports = {
     laconic: {
       url: "http://localhost:8545"
     },
-    deployment: {
+    optimism: {
       url: process.env.RPC_URL || "http://localhost:8545",
     },
     rinkeby: {
