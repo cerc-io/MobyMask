@@ -5,14 +5,11 @@ import path from 'path';
 // Workaround for missing types
 const { generateUtil } = require('eth-delegatable-utils');
 
-const BASE_URI = 'https://mobymask.com/#';
+const DEFAULT_BASE_URI = 'https://mobymask.com/#';
 
 // Workaround for importing JSON files
 const phisherRegistryArtifacts = require('../../hardhat/artifacts/contracts/PhisherRegistry.sol/PhisherRegistry.json');
-const { privateKey, mnemonic, baseURI = BASE_URI } = require('../secrets.json');
-
-
-const DEFAULT_BASE_URI = 'https://mobymask.com/#';
+const { privateKey, mnemonic, baseURI = DEFAULT_BASE_URI } = require('../secrets.json');
 
 const configPath = path.join(__dirname, '../config.json');
 const { abi } = phisherRegistryArtifacts;
@@ -127,5 +124,5 @@ export async function signDelegation (provider: ethers.providers.Provider, signe
   }
   console.log('A SIGNED DELEGATION/INVITE LINK:');
   console.log(JSON.stringify(invitation, null, 2));
-  console.log((baseURI ?? DEFAULT_BASE_URI) + '/members?invitation=' + encodeURIComponent(JSON.stringify(invitation)));
+  console.log(baseURI + '/members?invitation=' + encodeURIComponent(JSON.stringify(invitation)));
 }
