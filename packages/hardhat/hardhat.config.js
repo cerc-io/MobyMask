@@ -585,10 +585,18 @@ task("blockNumber", "Prints the block number", async (_, { ethers }) => {
 });
 
 task("balance", "Prints an account's balance")
-  .addPositionalParam("account", "The account's address")
+  .addPositionalParam("account", "The account's address or private key")
   .setAction(async (taskArgs, { ethers }) => {
+    let accountAddress = taskArgs.account;
+
+    // Check if account is a private key and get address
+    if (ethers.utils.isHexString(taskArgs.account, 32)) {
+      const wallet = new ethers.Wallet(taskArgs.account);
+      accountAddress = wallet.address
+    }
+
     const balance = await ethers.provider.getBalance(
-      await addr(ethers, taskArgs.account)
+      await addr(ethers, accountAddress)
     );
     console.log(formatUnits(balance, "ether"), "ETH");
   });
